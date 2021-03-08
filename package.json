@@ -1,0 +1,48 @@
+{
+  "name": "axios-package2",
+  "version": "1.0.0",
+  "description": "axios packaged for general use",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "browser": "dist/index.umd.js",
+  "typings": "types/index.d.ts",
+  "files": [
+    "src",
+    "dist/*.js",
+    "types/*.d.ts"
+  ],
+  "scripts": {
+    "build": "npm run test && rollup -c",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xwnwho/axios-package.git"
+  },
+  "keywords": [
+    "axios",
+    "axios package"
+  ],
+  "author": "xwnwho",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/xwnwho/axios-package/issues"
+  },
+  "homepage": "https://github.com/xwnwho/axios-package#readme",
+  "peerDependencies": {
+    "axios": "^0.21.1"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^17.1.0",
+    "@rollup/plugin-node-resolve": "^11.2.0",
+    "@types/jest": "^26.0.20",
+    "axios": "^0.21.1",
+    "jest": "^26.6.3",
+    "query-string": "^6.14.1",
+    "rollup": "^2.40.0",
+    "rollup-plugin-typescript2": "^0.30.0",
+    "ts-jest": "^26.5.3",
+    "tslib": "^2.1.0",
+    "typescript": "^4.2.3"
+  }
+}
