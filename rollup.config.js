@@ -8,20 +8,12 @@ export default {
   input: 'src/index.ts',
   output: [
     {
-      file: pkg.browser,
+      file: pkg.main,
       format: 'umd',
       name: 'axiosPackage',
       globals: {
         'axios': 'axios'
       }
-    },
-    {
-      file: pkg.main,
-      format: 'cjs',
-      globals: {
-        'axios': 'axios'
-      },
-      exports: 'auto'
     },
     {
       file: pkg.module,
