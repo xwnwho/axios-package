@@ -11,7 +11,7 @@
     "types/*.d.ts"
   ],
   "scripts": {
-    "build": "rollup -c",
+    "build": "npm run test && rollup -c",
     "test": "jest"
   },
   "repository": {
@@ -38,7 +38,7 @@
     "axios": "^0.21.1",
     "jest": "^26.6.3",
     "query-string": "^6.14.1",
-    "rollup": "^2.40.0",
+    "rollup": "^2.41.0",
     "rollup-plugin-typescript2": "^0.30.0",
     "ts-jest": "^26.5.3",
     "tslib": "^2.1.0",
