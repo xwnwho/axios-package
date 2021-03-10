@@ -1,14 +1,14 @@
 # axios-package
 
 > axios packaged for general use
-> [🇨🇳 中文版](./README.zh-Hans.md)
+> [English Version](./README.zh-Hans.md)
 
 ## breaking change
 
-- support ts
-- no longer wrapper default config, default export from function change to class
+- 支持ts
+- 库中不再包含默认配置，并且将默认导出从函数改为了类
 
-Incompatible with versions prior to 1.0.0
+和1.0.0之前的版本不兼容
 
 ## installation
 
