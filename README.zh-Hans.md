@@ -1,7 +1,7 @@
 # axios-package
 
 > axios packaged for general use
-> [English Version](./README.zh-Hans.md)
+> [English Version](./README.md)
 
 ## breaking change
 
