@@ -4,9 +4,22 @@ export interface HttpClientStatus {
   [propName: number]: string
 }
 
+export interface HttpClientResult {
+  status: number | undefined
+  statusText: string
+  config: AxiosRequestConfig
+  data?: any
+  headers?: any
+  request?: any
+}
+
+export interface ErrorHandler {
+  (result: HttpClientResult): any
+}
+
 export interface HttpClientConfig {
   axiosRequestConfig?: AxiosRequestConfig;
-  errorHandler?: CallableFunction;
+  errorHandler?: ErrorHandler
   statusMap?: HttpClientStatus
 }
 
@@ -20,7 +33,7 @@ export interface HttpRequestParameters {
 
 export default class HttpClient {
   private http: AxiosInstance
-  private errorHandler: CallableFunction | undefined
+  private errorHandler: ErrorHandler | undefined
   private statusMap: HttpClientStatus | undefined
   constructor(config: HttpClientConfig) {
     const { axiosRequestConfig, errorHandler, statusMap } = config
@@ -60,7 +73,7 @@ export default class HttpClient {
   }
   async similarToGet(method: 'get' | 'delete' | 'head' | 'options', params: HttpRequestParameters) {
     const { url, config, isReturnData = true, isHandleError = true } = params
-    const result = await this.http[method](url, config)
+    const result: HttpClientResult = await this.http[method](url, config)
     if (isHandleError && this.errorHandler) {
       // execute error handler function
       this.errorHandler(result)

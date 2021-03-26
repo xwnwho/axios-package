@@ -2,9 +2,20 @@ import { AxiosRequestConfig } from 'axios';
 export interface HttpClientStatus {
     [propName: number]: string;
 }
+export interface HttpClientResult {
+    status: number | undefined;
+    statusText: string;
+    config: AxiosRequestConfig;
+    data?: any;
+    headers?: any;
+    request?: any;
+}
+export interface ErrorHandler {
+    (result: HttpClientResult): any;
+}
 export interface HttpClientConfig {
     axiosRequestConfig?: AxiosRequestConfig;
-    errorHandler?: CallableFunction;
+    errorHandler?: ErrorHandler;
     statusMap?: HttpClientStatus;
 }
 export interface HttpRequestParameters {

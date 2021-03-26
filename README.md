@@ -73,10 +73,10 @@ const http = new HttpClient(config)
 
 const params = {
   url: '', // 接口请求地址
-  data: {}, // post接口，入参需要
-  config: {}, // axios配置
-  isReturnData: true, // 是否直接但会result中的data结果
-  isHandleError: true, // 是否执行处理错误的函数，和之前的errorHandler缺一不可
+  data: {}, // post接口，入参需要, 可选
+  config: {}, // axios配置，可选
+  isReturnData: true, // 是否直接但会result中的data结果，可选默认为true
+  isHandleError: true, // 是否执行处理错误的函数，和之前的errorHandler缺一不可,可选默认为true
 }
 
 // http methods: 'get' | 'delete' | 'head' | 'options' | 'post' | 'put' | 'patch'
@@ -95,7 +95,7 @@ http.post(params).then(result => {
 
 ```ts
 import { stringify } from 'query-string'
-import HttpClient, {HttpClientConfig, HttpRequestParameters } from 'axios-package2'
+import HttpClient, {HttpClientConfig,HttpClientResult, HttpRequestParameters } from 'axios-package2'
 
 // 将http的statusText从默认的英文转化为中文，给错误处理函数使用（不传，返回英文）
 const statusMap = {
@@ -115,7 +115,7 @@ const statusMap = {
 }
 
 // 自定义错误处理函数（不传，则不处理）
-const errorHandler = (result) => {
+const errorHandler = (result: HttpClientResult) => {
   console.log(result)
 }
 
@@ -143,12 +143,12 @@ const config: HttpClientConfig = {
 // 实例
 const http = new HttpClient(config)
 
-const params = {
+const params: HttpRequestParameters = {
   url: '', // 接口请求地址
-  data: {}, // post接口，入参需要
-  config: {}, // axios配置
-  isReturnData: true, // 是否直接但会result中的data结果
-  isHandleError: true, // 是否执行处理错误的函数，和之前的errorHandler缺一不可
+  data: {}, // post接口，入参需要, 可选
+  config: {}, // axios配置，可选
+  isReturnData: true, // 是否直接但会result中的data结果，可选默认为true
+  isHandleError: true, // 是否执行处理错误的函数，和之前的errorHandler缺一不可,可选默认为true
 }
 
 // http methods: 'get' | 'delete' | 'head' | 'options' | 'post' | 'put' | 'patch'

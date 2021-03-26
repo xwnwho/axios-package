@@ -73,10 +73,10 @@ const http = new HttpClient(config)
 
 const params = {
   url: '', // 接口请求地址
-  data: {}, // post接口，入参需要
-  config: {}, // axios配置
-  isReturnData: true, // 是否直接但会result中的data结果
-  isHandleError: true, // 是否执行处理错误的函数，和之前的errorHandler缺一不可
+  data: {}, // post接口，入参需要, 可选
+  config: {}, // axios配置，可选
+  isReturnData: true, // 是否直接但会result中的data结果，可选默认为true
+  isHandleError: true, // 是否执行处理错误的函数，和之前的errorHandler缺一不可,可选默认为true
 }
 
 // http methods: 'get' | 'delete' | 'head' | 'options' | 'post' | 'put' | 'patch'
@@ -145,10 +145,10 @@ const http = new HttpClient(config)
 
 const params = {
   url: '', // 接口请求地址
-  data: {}, // post接口，入参需要
-  config: {}, // axios配置
-  isReturnData: true, // 是否直接但会result中的data结果
-  isHandleError: true, // 是否执行处理错误的函数，和之前的errorHandler缺一不可
+  data: {}, // post接口，入参需要, 可选
+  config: {}, // axios配置，可选
+  isReturnData: true, // 是否直接但会result中的data结果，可选默认为true
+  isHandleError: true, // 是否执行处理错误的函数，和之前的errorHandler缺一不可,可选默认为true
 }
 
 // http methods: 'get' | 'delete' | 'head' | 'options' | 'post' | 'put' | 'patch'

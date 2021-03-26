@@ -1,5 +1,5 @@
 import { stringify } from 'query-string'
-import HttpClient, { HttpClientConfig, HttpRequestParameters } from '../src'
+import HttpClient, { HttpClientConfig,HttpClientResult, HttpRequestParameters } from '../src'
 
 // 将http的statusText从默认的英文转化为中文，给错误处理函数使用（不传，返回英文）
 const statusMap = {
@@ -19,7 +19,9 @@ const statusMap = {
 }
 
 // 自定义错误处理函数（不传，则不处理）
-const errorHandler = () => { }
+const errorHandler = (result: HttpClientResult) => {
+  console.log(result)
+ }
 
 // 提供默认配置
 const config: HttpClientConfig = {
@@ -39,7 +41,7 @@ const config: HttpClientConfig = {
     ]
   },
   errorHandler,
-  statusMap
+  statusMap,
 }
 
 // 实例
