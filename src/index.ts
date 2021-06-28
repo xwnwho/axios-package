@@ -53,6 +53,10 @@ export default class HttpClient {
   private responseInterceptor() {
     this.http.interceptors.response.use((response: AxiosResponse) => response,
       (error: AxiosError) => {
+        // cancelToken
+        if (axios.isCancel(error)) {
+          return this.transformError(undefined, 'cancel', error.config)
+        }
         if (error.response) {
           // has response
           const { status, statusText } = error.response
