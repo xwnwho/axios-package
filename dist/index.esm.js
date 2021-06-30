@@ -18,6 +18,10 @@ class HttpClient {
     }
     responseInterceptor() {
         this.http.interceptors.response.use((response) => response, (error) => {
+            // cancelToken
+            if (axios.isCancel(error)) {
+                return this.transformError(undefined, 'cancel', error.config);
+            }
             if (error.response) {
                 // has response
                 const { status, statusText } = error.response;
