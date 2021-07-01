@@ -63,7 +63,7 @@
           if (isHandleError && this.errorHandler) {
               this.errorHandler(result);
           }
-          return isReturnData ? result.data : result;
+          return isReturnData ? result.data || {} : result;
       }
       async get(params) {
           return await this.similarToGet('get', params);
