@@ -1,8 +1,8 @@
 import { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 export declare type ResponseCallback = (res: AxiosResponse) => any;
 export interface HttpClientConfig {
-    axiosRequestConfig: AxiosRequestConfig;
-    errorHandler: ResponseCallback | undefined;
+    axiosRequestConfig?: AxiosRequestConfig;
+    errorHandler?: ResponseCallback;
 }
 export interface HttpRequestParameters {
     url: string;
