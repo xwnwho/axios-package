@@ -2,12 +2,12 @@
 
 > axios packaged for general use
 
-> [English Version](./README.md)
+> [🇨🇳 中文版](./README.zh-Hans.md)
 
 ## breaking change
 
-- 配置移除statusMap
-- 可以通过getAxiosInstance实例方法获取内部的axios创建的实例，可以对实例进行一些自定义操作
+- HttpClientConfig remove statusMap configuration
+- you can use getAxiosInstance function get inner axios instance
 
 ## installation
 
@@ -41,19 +41,19 @@ const statusMap = {
 }
 
 const errorHandler = (result: AxiosResponse) => {
-  // 接口请求成功，或者是接口http报错
+  // request succeed or has http error
   if (resule.status > 0) {
     // do something
     const statusText = statusMap[result.status]
   }
-  // 接口其他错误: 例如接口取消、超时、网络问题
-  if (result.status < 0) {
+  // requset has other error: like timeout,network,canceled etc
+  if (result.status < 0) { // -1: canceled;-2：timeout,network etc
     // do something
   }
   console.log(result)
 }
 
-// 实例默认配置
+// httpClient default config
 const config: HttpClientConfig = {
   axiosRequestConfig: {
     baseURL: '',
@@ -75,13 +75,13 @@ const config: HttpClientConfig = {
 
 const http = new HttpClient(config)
 
-// 单个请求配置，只有url是必须的
+// request config, only url is required
 const params: HttpRequestParameters = {
   url: '',
   data: {},
   config: {},
-  isReturnData: true, // 请求直接返回response.data中的数据, 未传为true
-  isHandleError: true, // 当errorHandler存在，决定该函数是否调用，未传为true
+  isReturnData: true, // request return response.data, if not passed, default true
+  isHandleError: true, // request will call errorHandler or not, if not passed, default value is true 
 }
 
 // http methods: 'get' | 'delete' | 'head' | 'options' | 'post' | 'put' | 'patch'
