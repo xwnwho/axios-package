@@ -1,22 +1,8 @@
-import { AxiosRequestConfig } from 'axios';
-export interface HttpClientStatus {
-    [propName: number]: string;
-}
-export interface HttpClientResult {
-    status: number | undefined;
-    statusText: string;
-    config: AxiosRequestConfig;
-    data?: any;
-    headers?: any;
-    request?: any;
-}
-export interface ErrorHandler {
-    (result: HttpClientResult): any;
-}
+import { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+export declare type ResponseCallback = (res: AxiosResponse) => any;
 export interface HttpClientConfig {
-    axiosRequestConfig?: AxiosRequestConfig;
-    errorHandler?: ErrorHandler;
-    statusMap?: HttpClientStatus;
+    axiosRequestConfig: AxiosRequestConfig;
+    errorHandler: ResponseCallback | undefined;
 }
 export interface HttpRequestParameters {
     url: string;
@@ -25,16 +11,16 @@ export interface HttpRequestParameters {
     isReturnData?: boolean;
     isHandleError?: boolean;
 }
-export default class HttpClient {
+declare class HttpClient {
     private http;
-    private errorHandler;
-    private statusMap;
-    constructor(config: HttpClientConfig);
-    private transformError;
+    private responseCallback;
+    constructor(config?: HttpClientConfig);
+    getAxiosInstance(): AxiosInstance;
+    formatError(res: AxiosResponse): AxiosResponse;
     private responseInterceptor;
-    similarToGet(method: 'get' | 'delete' | 'head' | 'options', params: HttpRequestParameters): Promise<any>;
-    similarToPost(method: 'post' | 'put' | 'patch', params: HttpRequestParameters): Promise<any>;
-    get(params: HttpRequestParameters): Promise<any>;
+    similarToGet(method: 'get' | 'delete' | 'head' | 'options', requestConfig: HttpRequestParameters): Promise<any>;
+    similarToPost(method: 'post' | 'put' | 'patch', requestConfig: HttpRequestParameters): Promise<any>;
+    get(requestConfig: HttpRequestParameters): Promise<any>;
     delete(params: HttpRequestParameters): Promise<any>;
     head(params: HttpRequestParameters): Promise<any>;
     options(params: HttpRequestParameters): Promise<any>;
@@ -42,3 +28,4 @@ export default class HttpClient {
     put(params: HttpRequestParameters): Promise<any>;
     patch(params: HttpRequestParameters): Promise<any>;
 }
+export default HttpClient;

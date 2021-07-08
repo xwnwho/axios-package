@@ -4,6 +4,7 @@ import commonjs from '@rollup/plugin-commonjs'
 // import dts from "rollup-plugin-dts"
 import typescript from 'rollup-plugin-typescript2'
 import pkg from './package.json'
+
 export default {
   input: 'src/index.ts',
   output: [
@@ -12,16 +13,16 @@ export default {
       format: 'umd',
       name: 'axiosPackage',
       globals: {
-        'axios': 'axios'
-      }
+        axios: 'axios',
+      },
     },
     {
       file: pkg.module,
       format: 'es',
       globals: {
-        'axios': 'axios'
-      }
-    }
+        axios: 'axios',
+      },
+    },
   ],
   external: ['axios'],
   plugins: [
@@ -30,5 +31,5 @@ export default {
     typescript({
       useTsconfigDeclarationDir: true,
     }),
-  ]
+  ],
 }

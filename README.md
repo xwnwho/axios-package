@@ -6,98 +6,24 @@
 
 ## breaking change
 
-- support ts
-- no longer wrapper default config, default export from function change to class
-
-Incompatible with versions prior to 1.0.0
+- HttpClientConfig remove statusMap configuration
+- you can use getAxiosInstance function get inner axios instance
 
 ## installation
 
 ```bash
-npm i axios query-string axios-package2
+npm i axios axios-package2
 ```
 
 ## usage
-
-### es6
-
-```js
-import { stringify } from 'query-string'
-import HttpClient from 'axios-package2'
-
-// 将http的statusText从默认的英文转化为中文，给错误处理函数使用（不传，返回英文）
-const statusMap = {
-  400: '错误请求',
-  401: '未授权，请重新登录',
-  403: '拒绝访问',
-  404: '请求错误,未找到该资源',
-  405: '请求方法未允许',
-  408: '请求超时',
-  500: '服务器端出错',
-  501: '网络未实现',
-  502: '网络错误',
-  503: '服务不可用',
-  504: '网络超时',
-  505: 'http版本不支持该请求',
-  800: '登陆失效',
-}
-
-// 自定义错误处理函数（不传，则不处理）
-const errorHandler = (result) => {
-  console.log(result)
-}
-
-// 提供默认配置
-const config = {
-  axiosRequestConfig: {
-    baseURL: '',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
-    },
-    timeout: 60000,
-    transformRequest: [
-       (data, headers) => {
-        if (headers['Content-Type'].includes('x-www-form-urlencoded')) {
-          return stringify(data)
-        }
-        return data
-      }
-    ]
-  },
-  errorHandler,
-  statusMap
-}
-
-// 实例
-const http = new HttpClient(config)
-
-const params = {
-  url: '', // 接口请求地址
-  data: {}, // post接口，入参需要, 可选
-  config: {}, // axios配置，可选
-  isReturnData: true, // 是否直接但会result中的data结果，可选默认为true
-  isHandleError: true, // 是否执行处理错误的函数，和之前的errorHandler缺一不可,可选默认为true
-}
-
-// http methods: 'get' | 'delete' | 'head' | 'options' | 'post' | 'put' | 'patch'
-
-http.get(params).then(result => {
-  console.log(result)
-})
-
-http.post(params).then(result => {
-  console.log(result)
-})
-
-```
 
 ### typescript
 
 ```ts
 import { stringify } from 'query-string'
-import HttpClient, {HttpClientConfig,HttpClientResult, HttpRequestParameters } from 'axios-package2'
+import { AxiosResponse } from 'axios'
+import HttpClient, { HttpClientConfig } from 'axios-package2'
 
-// 将http的statusText从默认的英文转化为中文，给错误处理函数使用（不传，返回英文）
 const statusMap = {
   400: '错误请求',
   401: '未授权，请重新登录',
@@ -114,12 +40,20 @@ const statusMap = {
   800: '登陆失效',
 }
 
-// 自定义错误处理函数（不传，则不处理）
-const errorHandler = (result: HttpClientResult) => {
+const errorHandler = (result: AxiosResponse) => {
+  // request succeed or has http error
+  if (resule.status > 0) {
+    // do something
+    const statusText = statusMap[result.status]
+  }
+  // requset has other error: like timeout,network,canceled etc
+  if (result.status < 0) { // -1: canceled;-2：timeout,network etc
+    // do something
+  }
   console.log(result)
 }
 
-// 提供默认配置
+// httpClient default config
 const config: HttpClientConfig = {
   axiosRequestConfig: {
     baseURL: '',
@@ -137,18 +71,17 @@ const config: HttpClientConfig = {
     ]
   },
   errorHandler,
-  statusMap
 }
 
-// 实例
 const http = new HttpClient(config)
 
+// request config, only url is required
 const params: HttpRequestParameters = {
-  url: '', // 接口请求地址
-  data: {}, // post接口，入参需要, 可选
-  config: {}, // axios配置，可选
-  isReturnData: true, // 是否直接但会result中的data结果，可选默认为true
-  isHandleError: true, // 是否执行处理错误的函数，和之前的errorHandler缺一不可,可选默认为true
+  url: '',
+  data: {},
+  config: {},
+  isReturnData: true, // request return response.data, if not passed, default true
+  isHandleError: true, // request will call errorHandler or not, if not passed, default value is true 
 }
 
 // http methods: 'get' | 'delete' | 'head' | 'options' | 'post' | 'put' | 'patch'

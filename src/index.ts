@@ -1,122 +1,123 @@
-import axios, { AxiosRequestConfig, AxiosInstance, AxiosResponse, AxiosError } from 'axios'
+import axios, {
+  AxiosError,
+  AxiosInstance,
+  AxiosRequestConfig,
+  AxiosResponse,
+} from 'axios'
 
-export interface HttpClientStatus {
-  [propName: number]: string
-}
-
-export interface HttpClientResult {
-  status: number | undefined
-  statusText: string
-  config: AxiosRequestConfig
-  data?: any
-  headers?: any
-  request?: any
-}
-
-export interface ErrorHandler {
-  (result: HttpClientResult): any
-}
+export type ResponseCallback = (res: AxiosResponse) => any
 
 export interface HttpClientConfig {
-  axiosRequestConfig?: AxiosRequestConfig;
-  errorHandler?: ErrorHandler
-  statusMap?: HttpClientStatus
+  axiosRequestConfig?: AxiosRequestConfig
+  errorHandler?: ResponseCallback // this function will called after request finished
 }
 
 export interface HttpRequestParameters {
-  url: string;
-  data?: any,
-  config?: AxiosRequestConfig;
-  isReturnData?: boolean;
-  isHandleError?: boolean;
+  url: string
+  data?: any
+  config?: AxiosRequestConfig
+  isReturnData?: boolean // request will return response.data, if not passed, default value is true
+  isHandleError?: boolean // request will call errorHandler or not, if not passed, default value is true
 }
 
-export default class HttpClient {
+class HttpClient {
   private http: AxiosInstance
-  private errorHandler: ErrorHandler | undefined
-  private statusMap: HttpClientStatus | undefined
-  constructor(config: HttpClientConfig) {
-    const { axiosRequestConfig, errorHandler, statusMap } = config
-    this.errorHandler = errorHandler
-    this.statusMap = statusMap
-    const instanceRequestConfig = Object.assign({}, axiosRequestConfig)
-    this.http = axios.create(instanceRequestConfig)
+  private responseCallback: ResponseCallback | undefined
+  constructor(config?: HttpClientConfig) {
+    const { axiosRequestConfig = {}, errorHandler } = config || {}
+    this.http = axios.create(axiosRequestConfig)
+    this.responseCallback = errorHandler
     this.responseInterceptor()
   }
-  private transformError(status: number | undefined, statusText: string, config: AxiosRequestConfig) {
-    return {
-      config,
-      status,
-      statusText
-    }
+  getAxiosInstance(): AxiosInstance {
+    return this.http
+  }
+  formatError(res: AxiosResponse): AxiosResponse {
+    return res
   }
   private responseInterceptor() {
-    this.http.interceptors.response.use((response: AxiosResponse) => response,
-      (error: AxiosError) => {
-        // cancelToken
-        if (axios.isCancel(error)) {
-          return this.transformError(undefined, 'cancel', error.config)
+    this.http.interceptors.response.use(
+      (res: AxiosResponse) => res,
+      (err: AxiosError) => {
+        // request has response
+        if (err.response) {
+          return this.formatError(err.response)
         }
-        if (error.response) {
-          // has response
-          const { status, statusText } = error.response
-          const text = this.statusMap ? this.statusMap[status] : statusText
-          return this.transformError(status, text, error.config)
+        // request canceled
+        if (axios.isCancel(err)) {
+          return this.formatError({
+            data: {},
+            status: -1,
+            headers: null,
+            statusText: err.message || 'canceled',
+            config: err.config,
+          })
         }
-        if (error.message.includes('Network Error')) {
-          // Network Error
-          return this.transformError(undefined, '网络错误', error.config)
-        }
-        if (error.message.includes('timeout')) {
-          // timeout
-          return this.transformError(undefined, '请求超时', error.config)
-        }
-        // unknow error
-        return this.transformError(undefined, error.message, error.config)
-      })
+        // other error like: timeout, network etc
+        return this.formatError({
+          data: {},
+          status: -2,
+          headers: null,
+          statusText: err.message,
+          config: err.config,
+        })
+      }
+    )
   }
-  async similarToGet(method: 'get' | 'delete' | 'head' | 'options', params: HttpRequestParameters) {
-    const { url, config, isReturnData = true, isHandleError = true } = params
-    const result: HttpClientResult = await this.http[method](url, config)
-    if (isHandleError && this.errorHandler) {
-      // execute error handler function
-      this.errorHandler(result)
+  async similarToGet(
+    method: 'get' | 'delete' | 'head' | 'options',
+    requestConfig: HttpRequestParameters
+  ): Promise<any> {
+    const {
+      url,
+      config,
+      isReturnData = true,
+      isHandleError = true,
+    } = requestConfig
+    const result: AxiosResponse = await this.http[method](url, config)
+    if (isHandleError && this.responseCallback) {
+      this.responseCallback(result)
     }
-    return isReturnData ? result.data || {} : result
+    return isReturnData ? result.data : result
   }
-  async similarToPost(method: 'post' | 'put' | 'patch', params: HttpRequestParameters) {
+  async similarToPost(
+    method: 'post' | 'put' | 'patch',
+    requestConfig: HttpRequestParameters
+  ): Promise<any> {
     const {
       url,
       data,
       config,
       isReturnData = true,
       isHandleError = true,
-    } = params
+    } = requestConfig
     const result = await this.http[method](url, data, config)
-    if (isHandleError && this.errorHandler) {
-      this.errorHandler(result)
+    if (isHandleError && this.responseCallback) {
+      this.responseCallback(result)
     }
     return isReturnData ? result.data || {} : result
   }
-  async get(params: HttpRequestParameters) {
-    return await this.similarToGet('get', params)
+  async get(requestConfig: HttpRequestParameters): Promise<any> {
+    return await this.similarToGet('get', requestConfig)
   }
-  async delete(params: HttpRequestParameters) {
+  async delete(params: HttpRequestParameters): Promise<any> {
     return await this.similarToGet('delete', params)
   }
-  async head(params: HttpRequestParameters) {
+  async head(params: HttpRequestParameters): Promise<any> {
     return await this.similarToGet('head', params)
   }
-  async options(params: HttpRequestParameters) {
+  async options(params: HttpRequestParameters): Promise<any> {
     return await this.similarToGet('options', params)
   }
-  async post(params: HttpRequestParameters) {
+  async post(params: HttpRequestParameters): Promise<any> {
     return await this.similarToPost('post', params)
   }
-  async put(params: HttpRequestParameters) {
+  async put(params: HttpRequestParameters): Promise<any> {
     return await this.similarToPost('put', params)
   }
-  async patch(params: HttpRequestParameters) {
+  async patch(params: HttpRequestParameters): Promise<any> {
     return await this.similarToPost('patch', params)
   }
 }
+
+export default HttpClient
