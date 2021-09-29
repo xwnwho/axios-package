@@ -7,5 +7,5 @@ module.exports = {
   "bracketSpacing": true,
   "arrowParens": "always", 
   "htmlWhitespaceSensitivity": "css", 
-  "endOfLine": "crlf"
+  "endOfLine": "lf"
 }
