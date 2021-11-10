@@ -17,6 +17,7 @@ export default {
       globals: {
         axios: 'axios',
       },
+      exports: 'named',
     },
     {
       file: pkg.module,
@@ -24,6 +25,7 @@ export default {
       globals: {
         axios: 'axios',
       },
+      exports: 'named',
     },
   ],
   external: ['axios'],

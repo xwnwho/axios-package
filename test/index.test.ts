@@ -1,12 +1,12 @@
 import { stringify } from 'query-string'
 
 import HttpClient from '../src'
-const httpClient = new HttpClient()
+const httpClient = new HttpClient({})
 
 describe('get', () => {
   it('response status 200', async () => {
     const url = 'https://baidu.com/'
-    const result = await httpClient.get({ url, isReturnData: false })
+    const result = await httpClient.get({ url, isReturnResponseData: false })
     expect(result.status).toEqual(200)
   })
 })
@@ -14,28 +14,38 @@ describe('get', () => {
 describe('post', () => {
   it('response status 200', async () => {
     const params = {
-      url: 'http://10.76.224.224:8193/Shample/queryDay', // 接口请求地址
-      isReturnData: false,
+      url: 'http://10.76.224.224:8193/Shample/queryDay',
+      isReturnResponseData: false,
     }
     const result = await httpClient.post(params)
     expect(result.status).toEqual(200)
   })
-  it('response status 500', async () => {
+  it('response status 404', async () => {
     const params = {
-      url: 'http://10.76.224.224:8193/Shample/queryTime', // 接口请求地址
-      isReturnData: false,
+      url: 'http://10.76.224.224:8193/Shample/queryTime1', // 404
+      isReturnResponseData: false,
     }
     const result = await httpClient.post(params)
-    expect(result.status).toEqual(500)
+    // console.log(result.status, result.statusText)
+    expect(result.status).toEqual(404)
+  })
+  it('response status 0', async () => {
+    const params = {
+      url: 'http://10.76.224.224:8194/Shample/queryTime', // url not exist
+      isReturnResponseData: false,
+    }
+    const result = await httpClient.post(params)
+    // console.log(result.status, result.statusText)
+    expect(result.status).toEqual(0)
   })
 })
 
-describe('error handler', () => {
-  const errorHandler = () => {
+describe('responseCallback', () => {
+  const responseCallback = () => {
     expect(1).toBe(1)
   }
   const config = {
-    axiosRequestConfig: {
+    requestConfig: {
       baseURL: '',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
@@ -50,13 +60,13 @@ describe('error handler', () => {
         },
       ],
     },
-    errorHandler,
+    responseCallback,
   }
-  const httpInnter = new HttpClient(config)
+  const httpInstance = new HttpClient(config)
   const params = {
     url: 'http://10.76.224.224:8193/Shample/queryTime', // 接口请求地址
   }
   it('executed', async () => {
-    await httpInnter.post(params)
+    await httpInstance.post(params)
   })
 })

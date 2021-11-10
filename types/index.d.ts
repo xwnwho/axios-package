@@ -1,31 +1,35 @@
-import { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
-export declare type ResponseCallback = (res: AxiosResponse) => any;
-export interface HttpClientConfig {
-    axiosRequestConfig?: AxiosRequestConfig;
-    errorHandler?: ResponseCallback;
-}
-export interface HttpRequestParameters {
+import { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+export declare type ResponseCallback = (response: AxiosResponse) => void;
+export declare type HttpClientConfig = {
+    requestConfig?: AxiosRequestConfig;
+    isExecuteReponseInteceptors?: boolean;
+    responseCallback?: ResponseCallback;
+};
+export declare type HttpClientRequestConfig = {
     url: string;
+    requestConfig?: AxiosRequestConfig;
+    isExecuteResponseCallback?: boolean;
+    isReturnResponseData?: boolean;
+};
+export declare type HttpClientRequestConfigHasData = HttpClientRequestConfig & {
     data?: any;
-    config?: AxiosRequestConfig;
-    isReturnData?: boolean;
-    isHandleError?: boolean;
-}
-declare class HttpClient {
-    private http;
-    private responseCallback;
+};
+export declare class HttpClient {
+    http: AxiosInstance;
+    responseCallback?: ResponseCallback;
+    isExecuteResponseCallback?: boolean;
     constructor(config?: HttpClientConfig);
-    getAxiosInstance(): AxiosInstance;
-    formatError(res: AxiosResponse): AxiosResponse;
-    private responseInterceptor;
-    similarToGet(method: 'get' | 'delete' | 'head' | 'options', requestConfig: HttpRequestParameters): Promise<any>;
-    similarToPost(method: 'post' | 'put' | 'patch', requestConfig: HttpRequestParameters): Promise<any>;
-    get(requestConfig: HttpRequestParameters): Promise<any>;
-    delete(params: HttpRequestParameters): Promise<any>;
-    head(params: HttpRequestParameters): Promise<any>;
-    options(params: HttpRequestParameters): Promise<any>;
-    post(params: HttpRequestParameters): Promise<any>;
-    put(params: HttpRequestParameters): Promise<any>;
-    patch(params: HttpRequestParameters): Promise<any>;
+    responseInterceptor(successFn?: (response: AxiosResponse<any, any>) => AxiosResponse<any, any>, errorFn?: (error: AxiosError<any, any>) => AxiosResponse<any, any>): void;
+    handleResponseCallback(reponse: AxiosResponse, isExecuteResponseCallback?: boolean): void;
+    handleResponse(response: AxiosResponse, isReturnResponseData?: boolean): any;
+    requestSimilarToGet(method: 'get' | 'delete' | 'head' | 'options', config: HttpClientRequestConfig): Promise<any>;
+    requestSimilarToPost(method: 'post' | 'put' | 'patch', config: HttpClientRequestConfigHasData): Promise<any>;
+    get(config: HttpClientRequestConfig): Promise<any>;
+    delete(config: HttpClientRequestConfig): Promise<any>;
+    head(config: HttpClientRequestConfig): Promise<any>;
+    options(config: HttpClientRequestConfig): Promise<any>;
+    post(config: HttpClientRequestConfigHasData): Promise<any>;
+    put(config: HttpClientRequestConfigHasData): Promise<any>;
+    patch(config: HttpClientRequestConfigHasData): Promise<any>;
 }
 export default HttpClient;

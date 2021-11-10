@@ -5,118 +5,124 @@ import axios, {
   AxiosResponse,
 } from 'axios'
 
-export type ResponseCallback = (res: AxiosResponse) => any
+export type ResponseCallback = (response: AxiosResponse) => void
 
-export interface HttpClientConfig {
-  axiosRequestConfig?: AxiosRequestConfig
-  errorHandler?: ResponseCallback // this function will called after request finished
+export type HttpClientConfig = {
+  requestConfig?: AxiosRequestConfig
+  isExecuteReponseInteceptors?: boolean // execute axios response interceptor, default is true
+  responseCallback?: ResponseCallback // request finished callback fn
 }
 
-export interface HttpRequestParameters {
+export type HttpClientRequestConfig = {
   url: string
-  data?: any
-  config?: AxiosRequestConfig
-  isReturnData?: boolean // request will return response.data, if not passed, default value is true
-  isHandleError?: boolean // request will call errorHandler or not, if not passed, default value is true
+  requestConfig?: AxiosRequestConfig
+  isExecuteResponseCallback?: boolean // if responseCallback is configured and execute is true, responseCallback function will called
+  isReturnResponseData?: boolean // request response.data, default is true
 }
 
-class HttpClient {
-  private http: AxiosInstance
-  private responseCallback: ResponseCallback | undefined
+export type HttpClientRequestConfigHasData = HttpClientRequestConfig & {
+  data?: any
+}
+
+const successResponseInterceptorFn = (response: AxiosResponse): AxiosResponse =>
+  response
+
+const errorResponseInterceptorFn = (error: AxiosError): AxiosResponse => {
+  if (error.response) return error.response
+  // cross-site, timeout, cancel, network error
+  return {
+    data: {},
+    status: 0,
+    headers: {},
+    statusText: error.message,
+    config: error.config,
+  }
+}
+
+export class HttpClient {
+  http: AxiosInstance
+  responseCallback?: ResponseCallback
+  isExecuteResponseCallback?: boolean
   constructor(config?: HttpClientConfig) {
-    const { axiosRequestConfig = {}, errorHandler } = config || {}
-    this.http = axios.create(axiosRequestConfig)
-    this.responseCallback = errorHandler
-    this.responseInterceptor()
+    if (!config) {
+      this.http = axios.create()
+      return
+    }
+    const {
+      requestConfig,
+      isExecuteReponseInteceptors = true,
+      responseCallback,
+    } = config
+    this.http = axios.create(requestConfig)
+    this.responseCallback = responseCallback
+    isExecuteReponseInteceptors && this.responseInterceptor()
   }
-  getAxiosInstance(): AxiosInstance {
-    return this.http
+  responseInterceptor(
+    successFn = successResponseInterceptorFn,
+    errorFn = errorResponseInterceptorFn
+  ): void {
+    this.http.interceptors.response.use(successFn, errorFn)
   }
-  formatError(res: AxiosResponse): AxiosResponse {
-    return res
+  handleResponseCallback(
+    reponse: AxiosResponse,
+    isExecuteResponseCallback?: boolean
+  ): void {
+    isExecuteResponseCallback !== false &&
+      this.responseCallback &&
+      this.responseCallback(reponse)
   }
-  private responseInterceptor() {
-    this.http.interceptors.response.use(
-      (res: AxiosResponse) => res,
-      (err: AxiosError) => {
-        // request has response
-        if (err.response) {
-          return this.formatError(err.response)
-        }
-        // request canceled
-        if (axios.isCancel(err)) {
-          return this.formatError({
-            data: {},
-            status: -1,
-            headers: null,
-            statusText: err.message || 'canceled',
-            config: err.config,
-          })
-        }
-        // other error like: timeout, network etc
-        return this.formatError({
-          data: {},
-          status: -2,
-          headers: null,
-          statusText: err.message,
-          config: err.config,
-        })
-      }
-    )
+  handleResponse(response: AxiosResponse, isReturnResponseData = true) {
+    return isReturnResponseData ? response.data : response
   }
-  async similarToGet(
+  async requestSimilarToGet(
     method: 'get' | 'delete' | 'head' | 'options',
-    requestConfig: HttpRequestParameters
+    config: HttpClientRequestConfig
   ): Promise<any> {
     const {
       url,
-      config,
-      isReturnData = true,
-      isHandleError = true,
-    } = requestConfig
-    const result: AxiosResponse = await this.http[method](url, config)
-    if (isHandleError && this.responseCallback) {
-      this.responseCallback(result)
-    }
-    return isReturnData ? result.data : result
+      requestConfig,
+      isExecuteResponseCallback,
+      isReturnResponseData,
+    } = config
+    const response: AxiosResponse = await this.http[method](url, requestConfig)
+    this.handleResponseCallback(response, isExecuteResponseCallback)
+    return this.handleResponse(response, isReturnResponseData)
   }
-  async similarToPost(
+  async requestSimilarToPost(
     method: 'post' | 'put' | 'patch',
-    requestConfig: HttpRequestParameters
+    config: HttpClientRequestConfigHasData
   ): Promise<any> {
     const {
       url,
       data,
-      config,
-      isReturnData = true,
-      isHandleError = true,
-    } = requestConfig
-    const result = await this.http[method](url, data, config)
-    if (isHandleError && this.responseCallback) {
-      this.responseCallback(result)
-    }
-    return isReturnData ? result.data || {} : result
+      requestConfig,
+      isExecuteResponseCallback,
+      isReturnResponseData,
+    } = config
+    const response = await this.http[method](url, data, requestConfig)
+    this.handleResponseCallback(response, isExecuteResponseCallback)
+    return this.handleResponse(response, isReturnResponseData)
   }
-  async get(requestConfig: HttpRequestParameters): Promise<any> {
-    return await this.similarToGet('get', requestConfig)
+  get(config: HttpClientRequestConfig): Promise<any> {
+    return this.requestSimilarToGet('get', config)
   }
-  async delete(params: HttpRequestParameters): Promise<any> {
-    return await this.similarToGet('delete', params)
+  delete(config: HttpClientRequestConfig): Promise<any> {
+    return this.requestSimilarToGet('delete', config)
   }
-  async head(params: HttpRequestParameters): Promise<any> {
-    return await this.similarToGet('head', params)
+  head(config: HttpClientRequestConfig): Promise<any> {
+    return this.requestSimilarToGet('head', config)
   }
-  async options(params: HttpRequestParameters): Promise<any> {
-    return await this.similarToGet('options', params)
+  options(config: HttpClientRequestConfig): Promise<any> {
+    return this.requestSimilarToGet('options', config)
   }
-  async post(params: HttpRequestParameters): Promise<any> {
-    return await this.similarToPost('post', params)
+  post(config: HttpClientRequestConfigHasData): Promise<any> {
+    return this.requestSimilarToPost('post', config)
   }
-  async put(params: HttpRequestParameters): Promise<any> {
-    return await this.similarToPost('put', params)
+  put(config: HttpClientRequestConfigHasData): Promise<any> {
+    return this.requestSimilarToPost('put', config)
   }
-  async patch(params: HttpRequestParameters): Promise<any> {
-    return await this.similarToPost('patch', params)
+  patch(config: HttpClientRequestConfigHasData): Promise<any> {
+    return this.requestSimilarToPost('patch', config)
   }
 }
 

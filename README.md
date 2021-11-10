@@ -1,18 +1,10 @@
 # axios-package
 
-> axios packaged for general use
-
-> [English Version](./README.en.md)
-
-## fix
-
-- class 属性在项目babel中未能被转译，故将ts编译到es2020,
-
+> a simple axios wrapper
 
 ## breaking change
 
-- 配置移除statusMap
-- 可以通过getAxiosInstance实例方法获取内部的axios创建的实例，可以对实例进行一些自定义操作
+- some config property name is renamed
 
 ## installation
 
@@ -27,9 +19,10 @@ npm i axios axios-package2
 ```ts
 import { stringify } from 'query-string'
 import { AxiosResponse } from 'axios'
-import HttpClient, { HttpClientConfig } from 'axios-package2'
+import HttpClient, { HttpClientConfig, HttpClientRequestConfig,HttpClientRequestConfigHasData } from 'axios-package2'
 
-const statusMap = {
+// transform some error.response statusText into chinese
+export const errorResponseStatusMap = {
   400: '错误请求',
   401: '未授权，请重新登录',
   403: '拒绝访问',
@@ -45,22 +38,18 @@ const statusMap = {
   800: '登陆失效',
 }
 
-const errorHandler = (result: AxiosResponse) => {
-  // 接口请求成功，或者是接口http报错
+const responseCallback = (result: AxiosResponse) => {
+  // request has response
   if (resule.status > 0) {
-    // do something
-    const statusText = statusMap[result.status]
+    const statusText = errorResponseStatusMap[result.status]
+    return
   }
-  // 接口其他错误: 例如接口取消、超时、网络问题
-  if (result.status < 0) {
-    // do something
-  }
-  console.log(result)
+  // request no response error
+  console.log(result.statusText)
 }
 
-// 实例默认配置
 const config: HttpClientConfig = {
-  axiosRequestConfig: {
+  requestConfig: {
     baseURL: '',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
@@ -75,28 +64,24 @@ const config: HttpClientConfig = {
       }
     ]
   },
-  errorHandler,
+  responseCallback,
+  isExecuteReponseInteceptors: true // execute axios response interceptor, default is true
 }
 
-const http = new HttpClient(config)
+const httpInstance = new HttpClient(config)
 
-// 单个请求配置，只有url是必须的
-const params: HttpRequestParameters = {
+// single request config, if your requestParams want to set data property, you should use HttpClientRequestConfigHasData type.
+const requestParams: HttpClientRequestConfig = {
   url: '',
-  data: {},
-  config: {},
-  isReturnData: true, // 请求直接返回response.data中的数据, 未传为true
-  isHandleError: true, // 当errorHandler存在，决定该函数是否调用，未传为true
+  config: {}, // axios request config
+  isExecuteResponseCallback: true, // if responseCallback is configured and execute is true, responseCallback function will called
+  isReturnResponseData: true, // request return response.data not response, default is true;sometimes if you set config.responceType as blob, you should set false
 }
 
-// http methods: 'get' | 'delete' | 'head' | 'options' | 'post' | 'put' | 'patch'
+// httpInstance methods: 'get' | 'delete' | 'head' | 'options' | 'post' | 'put' | 'patch'
 
-http.get(params).then(result => {
-  console.log(result)
-})
-
-http.post(params).then(result => {
-  console.log(result)
+httpInstance.get(params).then(data => {
+  console.log(data)
 })
 
 ```
