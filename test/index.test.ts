@@ -14,7 +14,7 @@ describe('get', () => {
 describe('post', () => {
   it('response status 200', async () => {
     const params = {
-      url: 'http://10.76.224.224:8193/Shample/queryDay',
+      url: 'https://baidu.com/',
       isReturnResponseData: false,
     }
     const result = await httpClient.post(params)
@@ -22,7 +22,7 @@ describe('post', () => {
   })
   it('response status 404', async () => {
     const params = {
-      url: 'http://10.76.224.224:8193/Shample/queryTime1', // 404
+      url: 'https://baidu.com/haha', // 404
       isReturnResponseData: false,
     }
     const result = await httpClient.post(params)
@@ -31,7 +31,7 @@ describe('post', () => {
   })
   it('response status 0', async () => {
     const params = {
-      url: 'http://10.76.224.224:8194/Shample/queryTime', // url not exist
+      url: 'https://baidu1.com', // url not exist
       isReturnResponseData: false,
     }
     const result = await httpClient.post(params)
@@ -64,7 +64,7 @@ describe('responseCallback', () => {
   }
   const httpInstance = new HttpClient(config)
   const params = {
-    url: 'http://10.76.224.224:8193/Shample/queryTime', // 接口请求地址
+    url: 'https://baidu.com',
   }
   it('executed', async () => {
     await httpInstance.post(params)
