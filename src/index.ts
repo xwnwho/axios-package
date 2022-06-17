@@ -28,7 +28,15 @@ const successResponseInterceptorFn = (response: AxiosResponse): AxiosResponse =>
   response
 
 const errorResponseInterceptorFn = (error: AxiosError): AxiosResponse => {
-  if (error.response) return error.response
+  if (error.response) {
+    if (global.XMLHttpRequest) {
+      if (!(error.response instanceof global.XMLHttpRequest)) {
+        return error.response
+      }
+    } else {
+      return error.response
+    }
+  }
   // cross-site, timeout, cancel, network error
   return {
     data: {},
