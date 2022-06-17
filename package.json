@@ -1,6 +1,6 @@
 {
   "name": "axios-package2",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "axios packaged for general use",
   "main": "dist/index.umd.js",
   "module": "dist/index.esm.js",
