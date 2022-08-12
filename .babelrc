@@ -1,0 +1,23 @@
+{
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "targets": "ie >= 11, > 0.5%, not dead",
+        // 关闭 @babel/preset-env 默认的 Polyfill 注入
+        "useBuiltIns": false,
+        // 不将es模块语法转化为其他模块语法
+        "modules": false
+      }
+    ]
+  ],
+  "plugins": [
+    // 添加 transform-runtime 插件
+    [
+      "@babel/plugin-transform-runtime",
+      {
+        "corejs": 3
+      }
+    ]
+  ]
+}
