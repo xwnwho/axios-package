@@ -2,37 +2,27 @@ import { defineConfig } from 'rollup'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
 import typescript from '@rollup/plugin-typescript'
-import { terser } from 'rollup-plugin-terser'
+import { babel } from '@rollup/plugin-babel'
 import pkg from './package.json'
-
+const extensions = ['.ts', '.js', '.tsx', '.jsx', '.json'] // 默认不包含.ts
 export default defineConfig({
   input: 'src/index.ts',
   output: [
-    {
-      file: pkg.main,
-      format: 'umd',
-      name: 'axiosPackage',
-      globals: {
-        axios: 'axios',
-      },
-      exports: 'named',
-    },
     {
       file: pkg.module,
       format: 'es',
       globals: {
         axios: 'axios',
       },
-      exports: 'named',
     },
   ],
-  external: ['axios'],
+  external: ['axios', /^@babel\/runtime/],
   plugins: [
     nodeResolve(),
     commonjs(),
     typescript({
       tsconfig: './tsconfig.json',
     }),
-    terser({ format: { comments: false } }),
+    babel({ extensions, babelHelpers: 'runtime' }),
   ],
 })
